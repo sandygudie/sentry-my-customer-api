@@ -9,7 +9,7 @@ exports.validate = method => {
     case "body": {
       return [
         body("phone_number").isInt(),
-        body("password").matches(/^[0-9a-zA-Z]{6,}$/, "i")
+        body("name").matches(/^[0-9a-zA-Z]{6,}$/, "i")
       ];
     }
   }
@@ -17,8 +17,8 @@ exports.validate = method => {
 
 ///#region Get all Users.
 exports.all = (req, res) => {
-  const id = req.params.current_user;
-  User.findById(id)
+  const id = req.user.phone_number;
+  User.findOne({ identifier: id })
     .then(user => {
       const storeAssistants = user.assistants;
       res.status(200).json({
@@ -46,20 +46,19 @@ exports.all = (req, res) => {
 //Add new user
 
 exports.new = async (req, res) => {
-  const { first_name, last_name, email, password, phone_number } = req.body;
+  const { name,email, password, phone_number } = req.body;
 
 
     // Check if Phone exists
-    let userExists = await User.findOne({ identifier: '0' + req.user.phone_number.toString() });
+    let userExists = await User.findOne({ identifier: req.user.phone_number });
     if (userExists === null) {
         let userExists = await User.findOne({ identifier: req.user.phone_number.toString() });
         if (userExists) {
             // userExists.local.api_token = token;
             userExists.assistants.push(
                 {
-                    first_name:first_name,
-                     last_name: last_name,
-                      email: email,
+                    name:name,
+                    email: email,
                     password: password,
                      phone_number: phone_number
                 }
@@ -102,9 +101,8 @@ exports.new = async (req, res) => {
             // userExists.local.api_token = token;
             userExists.assistants.push(
                 {
-                    first_name:first_name,
-                     last_name: last_name,
-                      email: email,
+                    name:name,
+                    email: email,
                     password: password,
                      phone_number: phone_number
                 }
@@ -213,8 +211,7 @@ exports.update = async (req, res) => {
             if (user.assistants.length !== 0) {
                 user.assistants.map((assist) => {
                     if (assist._id.equals(req.params.assistant_id)) {
-                        assist.first_name = req.body.first_name,
-                        assist.last_name =  req.body.last_name,
+                        assist.name =  req.body.name,
                         assist.email = req.body.email,
                         assist.phone_number = req.body.phone_number
                     }
@@ -271,8 +268,7 @@ exports.update = async (req, res) => {
             if (user.assistants.length !== 0) {
                 user.assistants.map((assist) => {
                     if (assist._id.equals(req.params.assistant_id)) {
-                        assist.first_name = req.body.first_name,
-                        assist.last_name =  req.body.last_name,
+                        assist.name =  req.body.name,
                         assist.email = req.body.email,
                         assist.phone_number = req.body.phone_number
                     }

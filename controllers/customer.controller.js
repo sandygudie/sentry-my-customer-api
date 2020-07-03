@@ -138,40 +138,61 @@ exports.getById = (req, res) => {
 };
 
 exports.updateById = (req, res) => {
-  customerModel
-    .updateOne(
-      { _id: req.params.customerId },
-      {
-        $set: {
-          name: req.body.name,
-          phone_number: req.body.phone,
-        },
-      }
-    )
-    .exec()
-    .then((result) => {
-      res.status(200).json({
-        status: true,
-        message: "Customer was updated",
-        data: {
-          customer: {
-            id: req.params.customerId,
-            name: req.body.name,
-            phone: req.body.phone,
-          },
-        },
-      });
-    })
-    .catch((error) => {
-      res.status(500).json({
+  const { customer_id, store_id, name, phone_number, email} = req.body;
+  const identifier = req.user.phone_number;
+
+  UserModel.findOne({identifier})
+    .then((user) => {
+
+    try {
+      const store = user.stores.id(store_id);
+
+      const customer = store.customers.id(customer_id);
+
+      customer.name = name ? name : customer.name;
+      customer.phone_number = phone_number ? phone_number : customer.phone_number;
+      customer.email = email ? email : customer.email;
+
+      user.save()
+        .then((user) => {
+          return res.status(200).json({
+            success: true,
+            message: "Customer Updated!",
+            data: user.stores.id(store_id).customers.id(customer_id),
+          });
+        })
+        .catch((error) => {
+          return res.status(400).json({
+            status: false,
+            message: error.message,
+            error: {
+              code: 400,
+              message: error.message
+            }
+          }); 
+        });
+      
+    } catch (error) {
+      return res.status(400).json({
         status: false,
         message: error.message,
         error: {
-          code: 500,
-          message: error.message,
+          code: 400,
+          message: error.message
+        }
+      }); 
+    }
+  })
+    .catch((error) => {
+      return res.status(404).json({
+        status: false,
+        message: "User not found",
+        error: {
+          code: 404,
+          message: "User not found",
         },
       });
-    });
+    })
 };
 
 exports.deleteById = (req, res) => {
