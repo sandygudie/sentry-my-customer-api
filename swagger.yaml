@@ -12,6 +12,8 @@ tags:
   description: "Everything about Transaction"
 - name: "Customer"
   description: "Everything about Customer"
+- name: "Password Reset"
+  description: "Everything about Password Recovery"
 - name: "Store"
   description: "Everything about Store"
 - name: "User"
@@ -771,6 +773,65 @@ paths:
                 type: "string"
         "401":
           description: "Invalid input"
+  /resetpassword:
+    post:
+      tags:
+      - "Password Reset"
+      summary: "user reset password"
+      description: "The token generated is used to reset password "
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "query"
+        name: "passwordtoken"
+        description: "User passwordtoken generated from forgetpassword endpoint"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            resetPasswordToken:
+              type: "string"
+      - in: "body"
+        name: "password"
+        description: "User new password"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            password:
+              type: "string"
+      responses:
+        "200":
+          description: "Successful operation"
+        "400":
+          description: "Invalid input"
+  /forgetpassword:
+    post:
+      tags:
+      - "Password Reset"
+      summary: "user generate a link to recover forgotten password"
+      description: "generates a token and send reset link to user email"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "User registered email"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            email:
+              type: "string"
+      responses:
+        "200":
+          description: "Successful operation"
+        "400":
+          description: "Invalid input"   
   /complaint/new:
     post:
       tags:
@@ -1020,6 +1081,14 @@ definitions:
         type: "string"
       user_role:
         type: "string"
+  Password Reset:
+    type: "object"
+    required:
+    - "email"
+    properties:
+      email:
+        type: "string"
+        example: "Mikah@gmail.com"
   Complaint:
     type: "object"
     required:

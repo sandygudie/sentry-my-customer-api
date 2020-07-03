@@ -12,9 +12,12 @@ const storeAdminSchema = new mongoose.Schema({
 	  last_name: { type: String, default:"Not set"}, 
 	  email: { type: String, default: "Not set"}, 
 	  is_active: { type: Boolean, default: 0 },
-	  password: { type: String },
+	  password: { type: String }, 
 	  api_token: { type: String, required: true },
 	  user_role: { type: String, default: "store_admin" }
+	},
+	passwordreset:{
+		resetPasswordExpires:{type: Date},
 	},
 	google:{
 		googleId: { type: String },

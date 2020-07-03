@@ -21,6 +21,7 @@
                 <li class="logo"><a href="#">Introduction</a></li>
                 <li class="item"><a href="#auth">Authentication</a></li>
                 <li class="item"><a href="#notification">Notification</a></li>
+                <li class="item"><a href="#forgetpassword">forgetpassword</a></li>
                 <li class="item"><a href="#transaction">Transaction</a></li>
                 <li class="item"><a href="#user">User</a></li>
                 <li class="item"><a href="#customer">Customer</a></li>
@@ -43,6 +44,7 @@
                 <li>Creating and managing customers</li>
                 <li>Authenticating users and customers</li>
                 <li>Creating and managing complaints</li>
+                <li>Recovering password</li>
                 <li>Creating and managing stores</li>
                 <li>Sending notifications to customers</li>
                 <li>Calling customers</li>
@@ -238,6 +240,29 @@
                 </li>
                 <li>Delete transaction (logical delete)<strong>- /transaction/delete/:transaction_id</strong></li>
             </ul>
+        </div>
+        <div class="forgetpassword" id="forgetpassword">
+            <h1 class="">Password Recovery</h1>
+            <hr>
+            <h4>Endpoints</h4>
+            <ul>
+                <li>Send password reset link<strong> - /forgetpassword [POST]</strong>
+                    <h6>Body: </h6>
+                    <ul class="alert alert-primary">
+                        <li>email</li>
+                    </ul>
+                </li>
+                <li>Change password<strong> - /resetpassword [POST]</strong>
+                    <h6>Body: </h6>
+                    <ul class="alert alert-primary">
+                        <li>password</li>
+                    </ul>
+                    <h6>Query: </h6>
+                    <ul class="alert alert-primary">
+                        <li>useridentifier (parse from the reset link)</li>
+                    </ul>
+                </li>
+            </ul>  
         </div>
         <div class="customer" id="customer">
             <h1 class="">Customer</h1>
