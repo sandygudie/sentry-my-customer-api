@@ -8,9 +8,6 @@ const { RESET_PASSWORD } = process.env;
 exports.forgetpassword = (req, res) => {
   const { phone_number, email } = req.body;
 
-  // // /  Get instance of the
-  // const user =  new UserModel({});
-
   UserModel.findOne({ identifier: phone_number })
     .then((userexist) => {
       if (!userexist)
@@ -42,28 +39,29 @@ exports.forgetpassword = (req, res) => {
 
       // Set email and expires time
       userexist.local.email = email;
-      userexist.passwordreset.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+      userexist.resetPasswordToken =  passwordtoken
+      userexist.resetPasswordExpires = Date.now() + 3600000; // 1 hour
 
       // Save to DB
       userexist.save().then(() => {
         // Send email
         var transporter = nodemailer.createTransport({
-          host: "sandygoodnews@gmail.com",
+          host: "youremail@gmail.com",
           secure: false, // use SSL
           service: "gmail",
           auth: {
-            user: "sandygoodnews@gmail.com",
-            pass: "sandy8169",
+            user: "youremail@gmail.com",
+            pass: "emailpassword",
           },
           tls: {
             rejectUnauthorized: false,
           },
         });
         // Reset link
-        let link ="http://" + req.headers.host + "/reset/" + phone_number + "/" + passwordtoken;
+        let link ="http://" + req.headers.host + "/reset/"+ passwordtoken;
         
         let mailOptions = {
-          from: "sandygoodnews@gmail.com",
+          from: "youremail@gmail.com",
           to: email,
           subject: "Reset password Link",
           text: "You requested to Reset password ",
@@ -89,7 +87,9 @@ exports.forgetpassword = (req, res) => {
               success: true,
               message: "A reset link has been sent to your mail",
               phonenumber: userexist.local.phone_number,
-              passwordexpiries: userexist.passwordreset.resetPasswordExpires,
+              email: userexist.local.email,
+              passwordtoken: userexist.resetPasswordToken,
+              passwordexpiries: userexist.resetPasswordExpires,
             });
           }
         });
@@ -109,13 +109,16 @@ exports.forgetpassword = (req, res) => {
 
 // Reset the password and sent confirmation mail
 exports.resetpassword = (req, res) => {
+
   const { password } = req.body;
-  const { useridentifier } = req.query;
+  const { passwordtoken } = req.query;
 
-
-  UserModel.findOne({ identifier: useridentifier.toString() })
+UserModel.findOne({resetPasswordToken: passwordtoken.toString(), resetPasswordExpires: { $gt: Date.now() }})
+  // UserModel.findOne({ identifier: useridentifier.toString() })
     .then((userexist) => {
-      console.log(userexist);
+
+      // console.log(userexist);
+
       if (!userexist) {
         res.status(400).json({
           success: false,
@@ -126,8 +129,7 @@ exports.resetpassword = (req, res) => {
           },
         });
       }
-      // check password requirement
-      // if(!(req.body.password.match(/^[0-9a-zA-Z]{6,}$/, "i"))) {
+    
       let passwordlength = password.toString();
       if (passwordlength.length < 6) {
         return res.status(400).json({
@@ -142,7 +144,8 @@ exports.resetpassword = (req, res) => {
 
       // Set the new  Encrypted password
       userexist.local.password = bCrypt.hashSync(password, 12);
-      userexist.local.resetPasswordExpires = null;
+      userexist.resetPasswordToken = null;
+      userexist.resetPasswordExpires = null;
 
       // Save to DB
       userexist.save((err, userwho) => {
@@ -158,19 +161,19 @@ exports.resetpassword = (req, res) => {
 
         // Send email
         let transporter = nodemailer.createTransport({
-          host: "sandygoodnews@gmail.com",
+          host: "youremail@gmail.com",
           secure: false, // use SSL
           service: "gmail",
           auth: {
-            user: "sandygoodnews@gmail.com",
-            pass: "sandy8169",
+            user: "youremail@gmail.com",
+            pass: "emailpassword",
           },
           tls: {
             rejectUnauthorized: false,
           },
         });
         let mailOptions = {
-          from: "sandygoodnews@gmail.com",
+          from: "youremail@gmail.com",
           to: userwho.local.email,
           subject: "Your password has been changed",
           html: `
@@ -194,7 +197,9 @@ exports.resetpassword = (req, res) => {
               message: "password reset successful",
               user: {
                 email: userwho.local.email,
-                phonenumber: userwho.local.phone_number
+                phonenumber: userwho.local.phone_number,
+              passwordtoken: userwho.resetPasswordToken,
+              passwordexpiries: userwho.resetPasswordExpires,
               },
             });
           }

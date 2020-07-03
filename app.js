@@ -14,7 +14,7 @@ const customer = require("./routes/customer");
 // const example = require("./routes/example");
 // const messagingAPI = require("./routes/messaging");
 const mongoose = require("mongoose");
-// const transactions = require("./routes/transaction");
+const transactions = require("./routes/transaction");
 const store = require("./routes/stores.js");
 const register = require("./routes/register_route");
 const login = require("./routes/login_route");
@@ -65,7 +65,7 @@ app.use(customer);
 // app.use(phone_verification);
 // app.use(messagingAPI);
 // app.use(emailAPI);
-// app.use(transactions);
+app.use(transactions);
 // app.use(businessCards);
 app.use(store);
 // app.use(complainRouter);
@@ -77,6 +77,7 @@ app.use("/register", register);
 
 // CONFIGURE FACEBOOK SIGNIN
 app.use(passport.initialize());
+
 passport.use(new Strategy({
   clientID: FB_CLIENT_ID,
   clientSecret: FB_CLIENT_SECRET,
